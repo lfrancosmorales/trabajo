@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Gestión de Citas Médicas</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f4f4f4;
+            color: #333;
+            max-width: 800px;
+            margin: auto;
+            padding: 20px;
+        }
+
+        h1 {
+            text-align: center;
+            color: #0066cc;
+        }
+
+        section {
+            margin-bottom: 30px;
+            background: white;
+            padding: 15px;
+            border-radius: 10px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        input, select, button {
+            display: block;
+            margin: 10px 0;
+            padding: 8px;
+            font-size: 16px;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        button {
+            background-color: #0066cc;
+            color: white;
+            border: none;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+
+        button:hover {
+            background-color: #004999;
+        }
+
+        #resultados {
+            margin-top: 20px;
+            background: #fff;
+            padding: 15px;
+            border-radius: 10px;
+            border: 1px solid #ddd;
+        }
+    </style>
+</head>
+<body>
+    <h1>Gestión de Citas Médicas</h1>
+
+    <section class="formulario">
+        <h2>Añadir Cita</h2>
+        <input type="text" id="paciente" placeholder="Nombre del paciente">
+        <select id="doctor">
+            <option value="1">Dr. García</option>
+            <option value="2">Dra. López</option>
+        </select>
+        <input type="datetime-local" id="fechaHora">
+        <button onclick="reservar()">Reservar</button>
+    </section>
+
+    <section class="formulario">
+        <h2>Editar Cita</h2>
+        <input type="number" id="editId" placeholder="ID de la cita">
+        <input type="datetime-local" id="editFechaHora">
+        <button onclick="editarCita()">Editar</button>
+    </section>
+
+    <section class="formulario">
+        <h2>Cancelar Cita</h2>
+        <input type="number" id="cancelId" placeholder="ID de la cita">
+        <button onclick="cancelarCita()">Cancelar</button>
+    </section>
+
+    <section class="formulario">
+        <h2>Filtrar Citas</h2>
+        <input type="text" id="filtroPaciente" placeholder="Nombre del paciente">
+        <input type="text" id="filtroDoctor" placeholder="Nombre del doctor">
+        <button onclick="filtrarCitas()">Filtrar</button>
+    </section>
+
+    <section>
+        <button onclick="verCitas()">Ver Todas las Citas</button>
+    </section>
+
+    <div id="resultados"></div>
+
+    <script>
+        const baseUrl = "http://localhost:8080/CitasMedicas";
+
+        function reservar() {
+            const paciente = document.getElementById("paciente").value;
+            const idDoctor = document.getElementById("doctor").value;
+            const fechaHora = document.getElementById("fechaHora").value;
+
+            fetch(`${baseUrl}/Cita`, {
+                method: "POST",
+                headers: { "Content-Type": "application/x-www-form-urlencoded" },
+                body: `paciente=${paciente}&idDoctor=${idDoctor}&fechaHora=${fechaHora}`
+            })
+            .then(res => res.text())
+            .then(alert);
+        }
+
+        function editarCita() {
+            const id = document.getElementById("editId").value;
+            const fechaHora = document.getElementById("editFechaHora").value;
+
+            fetch(`${baseUrl}/EditarCita`, {
+                method: "POST",
+                headers: { "Content-Type": "application/x-www-form-urlencoded" },
+                body: `id=${id}&fechaHora=${fechaHora}`
+            })
+            .then(res => res.text())
+            .then(alert);
+        }
+
+        function cancelarCita() {
+            const id = document.getElementById("cancelId").value;
+
+            fetch(`${baseUrl}/CancelarCita`, {
+                method: "POST",
+                headers: { "Content-Type": "application/x-www-form-urlencoded" },
+                body: `id=${id}`
+            })
+            .then(res => res.text())
+            .then(alert);
+        }
+
+        function filtrarCitas() {
+            const doctor = document.getElementById("filtroDoctor").value;
+            const paciente = document.getElementById("filtroPaciente").value;
+
+            fetch(`${baseUrl}/FiltrarCitas?doctor=${doctor}&paciente=${paciente}`)
+            .then(res => res.text())
+            .then(html => document.getElementById("resultados").innerHTML = html);
+        }
+
+        function verCitas() {
+            fetch(`${baseUrl}/Cita`)
+            .then(res => res.text())
+            .then(html => document.getElementById("resultados").innerHTML = html);
+        }
+    </script>
+</body>
+</html>
+
